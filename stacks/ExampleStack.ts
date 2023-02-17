@@ -4,7 +4,7 @@ export function ExampleStack({ stack }: StackContext) {
   // Create the Aurora DB cluster
   const cluster = new RDS(stack, "Cluster", {
     engine: "postgresql11.13",
-    defaultDatabaseName: "CounterDB",
+    defaultDatabaseName: "Spacemaker",
     // TODO enable this when migrations is fixed, I removed the services folder to not keep unused code.
     // migrations: "services/migrations",
   });
