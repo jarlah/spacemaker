@@ -9,13 +9,10 @@ import { RootSchema } from "./types";
 
 const ajv = new Ajv();
 
-type PolygonType = "building_limit" | "height_plateau" | "split_building_limit";
-
 interface Database {
   polygons: {
-    // Making it simple for now, and using bigserial instead of uuid
     id?: number;
-    type: PolygonType;
+    type: string;
     polygon: any;
     elevation?: number;
     project_id: number;
@@ -88,37 +85,47 @@ export async function createHandler(event: APIGatewayEvent) {
   // 2. Check if the merged height_plateaus geometry completely covers the building limits geometry
 
   // "Migrate"
-  // FIXME this is a costly operation, that takes two sql operations,
+  // FIXME this is a costly operation, that takes multiple sql operations,
   // but for now it will have to suffice
   await initializeDatabase(db);
 
-  const res = await db
-    .insertInto("projects")
-    .values({ name: "Project" })
-    .returning("id")
-    .executeTakeFirst();
-  const newProjectId = res?.id;
-  if (!newProjectId) throw new Error("Missing result from project creation");
+  // Insert the new polygon project
+  const newProjectId = db.transaction().execute(async (trx) => {
+    const res = await trx
+      .insertInto("projects")
+      .values({ name: "Project" })
+      .returning("id")
+      .executeTakeFirst();
+    const newProjectId = res?.id;
+    if (!newProjectId) throw new Error("Missing result from project creation");
 
-  const polygons = [
-    ...data.building_limits.features.map((feat) => ({
-      type: "building_limit" as PolygonType,
-      polygon: JSON.stringify(feat.geometry),
-      project_id: newProjectId,
-      elevation: undefined,
-    })),
-    ...data.height_plateaus.features.map((feat) => ({
-      type: "height_plateau" as PolygonType,
-      polygon: JSON.stringify(feat.geometry),
-      project_id: newProjectId,
-      elevation: feat.properties.elevation,
-    })),
-  ];
+    const polygons = [
+      ...data.building_limits.features.map((feat) => ({
+        type: "building_limit",
+        polygon: JSON.stringify(feat.geometry),
+        project_id: newProjectId,
+        elevation: undefined,
+      })),
+      ...data.height_plateaus.features.map((feat) => ({
+        type: "height_plateau",
+        polygon: JSON.stringify(feat.geometry),
+        project_id: newProjectId,
+        elevation: feat.properties.elevation,
+      })),
+    ];
 
-  await db.insertInto("polygons").values(polygons.map(p => ({
-    ...p,
-    polygon: sql`ST_GeomFromGeoJSON(${p.polygon} :: json)`
-  }))).execute()
+    await trx
+      .insertInto("polygons")
+      .values(
+        polygons.map((p) => ({
+          ...p,
+          polygon: sql`ST_GeomFromGeoJSON(${p.polygon} :: json)`,
+        }))
+      )
+      .execute();
+
+    return newProjectId;
+  });
 
   return {
     statusCode: 200,
