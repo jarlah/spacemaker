@@ -38,18 +38,58 @@ const db = new Kysely<Database>({
   }),
 });
 
-// Creates the necessary extensions and tables
-// Due to problems with migration not working, we are doing the "migration" here
-// TODO in a real production environment, we will need a proper migration
-async function initializeDatabase(db: Kysely<Database>) {
-  await sql`CREATE EXTENSION IF NOT EXISTS postgis;`.execute(db);
-  await db.schema
+export async function createHandler(event: APIGatewayEvent) {
+  // Parse json
+  const data: RootSchema = JSON.parse(event.body || "{}");
+
+  // Validate json
+  if (!ajv.validate(schema, data)) {
+    return {
+      statusCode: 400,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(ajv.errors),
+    };
+  }
+
+  // "Migrate"
+  // FIXME this is a costly operation, that takes multiple sql operations,
+  // but for now it will have to suffice
+  await initializeDatabase(db);
+
+  // Validate geometry
+  // Can use sql for this
+  // 1. Merge height plateaus
+  // 2. Check if the merged height_plateaus geometry completely covers the building limits geometry
+
+  // Insert the new polygon project
+  const newProjectId = createNewPolygonProject(db, data);
+
+  return {
+    statusCode: 200,
+    headers: { "Content-Type": "application/json" },
+    body: newProjectId,
+  };
+}
+
+/**
+ * Creates the necessary extensions and tables
+ * 
+ * Due to problems with migration not working, we are doing the "migration" here
+ * 
+ * TODO in a real production environment, we will need a proper migration
+ * 
+ * @param trx the db
+ */
+
+async function initializeDatabase(trx: Kysely<Database>): Promise<void> {
+  await sql`CREATE EXTENSION IF NOT EXISTS postgis;`.execute(trx);
+  await trx.schema
     .createTable("projects")
     .addColumn("id", "bigserial", (col) => col.primaryKey())
     .addColumn("name", "varchar", (col) => col.notNull())
     .ifNotExists()
     .execute();
-  await db.schema
+  await trx.schema
     .createTable("polygons")
     .addColumn("id", "bigserial", (col) => col.primaryKey())
     .addColumn("type", "varchar", (col) => col.notNull())
@@ -66,38 +106,23 @@ async function initializeDatabase(db: Kysely<Database>) {
     .execute();
 }
 
-export async function createHandler(event: APIGatewayEvent) {
-  // Parse json
-  const data: RootSchema = JSON.parse(event.body || "{}");
-
-  // Validate json
-  if (!ajv.validate(schema, data)) {
-    return {
-      statusCode: 400,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(ajv.errors),
-    };
-  }
-
-  // Validate geometry
-  // Can use sql for this
-  // 1. Merge height plateaus
-  // 2. Check if the merged height_plateaus geometry completely covers the building limits geometry
-
-  // "Migrate"
-  // FIXME this is a costly operation, that takes multiple sql operations,
-  // but for now it will have to suffice
-  await initializeDatabase(db);
-
-  // Insert the new polygon project
-  const newProjectId = db.transaction().execute(async (trx) => {
+/**
+ * Creates a project with building limits and height plateaus
+ * 
+ * @param trx the transaction
+ * @param data the geojson data
+ * @returns the new project id
+ */
+const createNewPolygonProject = (trx: Kysely<Database>, data: RootSchema): Promise<number> => {
+  return db.transaction().execute(async (trx) => {
     const res = await trx
       .insertInto("projects")
       .values({ name: "Project" })
       .returning("id")
       .executeTakeFirst();
     const newProjectId = res?.id;
-    if (!newProjectId) throw new Error("Missing result from project creation");
+    if (!newProjectId)
+      throw new Error("Missing result from project creation");
 
     const polygons = [
       ...data.building_limits.features.map((feat) => ({
@@ -126,10 +151,4 @@ export async function createHandler(event: APIGatewayEvent) {
 
     return newProjectId;
   });
-
-  return {
-    statusCode: 200,
-    headers: { "Content-Type": "application/json" },
-    body: newProjectId,
-  };
-}
+};
