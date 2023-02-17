@@ -1,6 +1,16 @@
-# How to use PostgreSQL in your serverless app
+# Polygon backend solution
 
-An example serverless app created with SST.
+A serverless app created with SST.
+
+## Visualization of the polygons
+
+![Kiku](screenshot1.png)
+
+![Kiku](screenshot2.png)
+
+![Kiku](screenshot3.png)
+
+![Kiku](screenshot4.png)
 
 ## Getting Started
 
