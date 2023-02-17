@@ -1,6 +1,4 @@
-// TODO add constraints on coordinates for longitude (-180 to 180) and latitude (-90 to 90)
-// This schema is unoptimized, and should be refactored into smaller maintainable pieces
-export default {
+{
     "type": "object",
     "default": {},
     "title": "Root Schema",
