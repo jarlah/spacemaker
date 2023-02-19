@@ -36,6 +36,10 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - uses: "finnp/create-file-action@master"
+      env:
+        FILE_NAME: ".sst/stage"
+        FILE_DATA: "test"
     - name: Run core tests
       run: |
         npm ci
