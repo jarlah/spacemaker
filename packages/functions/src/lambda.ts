@@ -59,6 +59,6 @@ export async function createHandler(event: APIGatewayEvent) {
   return {
     statusCode: 200,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(newProjectId),
+    body: JSON.stringify(newProjectId.toString()),
   };
 }
