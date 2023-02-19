@@ -2,6 +2,10 @@
 
 A serverless app created with SST.
 
+## Endpoints
+
+See stacks/ExampleStack.ts for endpoints.
+
 ## Task
 Your task is to implement a programmatic API with a clean interface that consumes building
 limits and height plateaus, splits up the building limits according to the height plateaus, and
