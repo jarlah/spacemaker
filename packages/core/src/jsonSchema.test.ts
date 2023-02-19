@@ -1,4 +1,3 @@
-import { APIGatewayEvent } from "aws-lambda";
 import { expect, test } from "vitest";
 import { validateRequestBody } from "./jsonSchema";
 
