@@ -36,6 +36,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - run: mkdir .sst/
     - uses: "finnp/create-file-action@master"
       env:
         FILE_NAME: ".sst/stage"
