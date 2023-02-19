@@ -41,7 +41,7 @@ In the update endpoint use a transaction with serializable isolation level for u
 #### Testing
 Think about ways of testing your application to make sure it works as intended.
 ##### Solution: 
-unit tests and integration tests with database service in github actions (see .github/workflows/node.js.yml)
+unit tests and integration tests with database service in github actions (see .github/workflows/node.js.yml). Also possible to run integration tests locally.
 
 #### Deployment
 The API should be deployed to an optional cloud service provider.
