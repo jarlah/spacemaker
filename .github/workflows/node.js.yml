@@ -41,10 +41,9 @@ jobs:
       env:
         FILE_NAME: ".sst/stage"
         FILE_DATA: "test"
+    - run: npm ci
     - name: Run core tests
-      run: |
-        npm ci
-        npm run test
+      run: npm run test
       working-directory: packages/core
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
