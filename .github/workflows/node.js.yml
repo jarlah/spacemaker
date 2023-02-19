@@ -36,6 +36,9 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
-    - run: cd packages/core
-    - run: npm run test
+    - name: Run core tests
+      run: |
+        run: npm ci
+        npm run test
+      working-directory: packages/core
+
