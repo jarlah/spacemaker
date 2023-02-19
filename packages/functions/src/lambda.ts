@@ -5,7 +5,19 @@ import { RDS } from "@serverless-stack/node/rds";
 import { APIGatewayEvent } from "aws-lambda";
 import { validateRequestBody } from "@spacemaker/core/jsonSchema";
 import Database from "@spacemaker/core/databaseType";
-import { createPolygonProjectFromSchema, validatePolygons} from '@spacemaker/core/src/polygons';
+import {
+  createPolygonProjectFromSchema,
+  updatePolygonProjectFromSchema,
+  validatePolygons,
+} from "@spacemaker/core/polygons";
+import {
+  badRequest,
+  created,
+  handleErrors,
+  internalServerError,
+  ok,
+  updated,
+} from "@spacemaker/core/http";
 
 const db = new Kysely<Database>({
   dialect: new DataApiDialect({
@@ -22,43 +34,64 @@ const db = new Kysely<Database>({
   }),
 });
 
+// TODO, if i were to make more of these kinds of serverless apps,
+// i would have found a better way to solve code reuse
+// The following two lambdas is almost identical, except for one taking a parameter
+// and both calling different service logic
+
+export async function getHandler(_: APIGatewayEvent) {
+  return ok("Not yet implemented");
+}
+
 export async function updateHandler(event: APIGatewayEvent) {
-  const projectId = event.pathParameters?.id;
+  // update handler takes an id path param, so force the type
+  const projectId = event.pathParameters?.id as string;
+
   const result = validateRequestBody(event.body);
   if (!result.success) {
-    return result.data;
+    return badRequest(result.data);
   }
 
-  return {
-    statusCode: 200,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(projectId),
-  };
+  const valid = validatePolygons(result.data);
+  if (!valid) {
+    return badRequest(
+      "Invalid building limits and/or overlapping height plateaus"
+    );
+  }
+
+  const saveResult = await handleErrors(
+    updatePolygonProjectFromSchema(db, projectId, result.data)
+  );
+
+  switch (saveResult.success) {
+    case true:
+      return updated();
+    case false:
+      return internalServerError(saveResult.data?.toString());
+  }
 }
 
 export async function createHandler(event: APIGatewayEvent) {
   const result = validateRequestBody(event.body);
   if (!result.success) {
-    return {
-      statusCode: 400,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(result.data),
-    };
+    return badRequest(result.data);
   }
 
   const valid = validatePolygons(result.data);
   if (!valid) {
-    return {
-      statusCode: 400,
-      body: "Invalid building limits and/or overlapping height plateaus",
-    };
+    return badRequest(
+      "Invalid building limits and/or overlapping height plateaus"
+    );
   }
 
-  const newProjectId = await createPolygonProjectFromSchema(db, result.data);
+  const saveResult = await handleErrors(
+    createPolygonProjectFromSchema(db, result.data)
+  );
 
-  return {
-    statusCode: 200,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(newProjectId.toString()),
-  };
+  switch (saveResult.success) {
+    case true:
+      return created(saveResult.data?.toString());
+    case false:
+      return internalServerError(saveResult.data?.toString());
+  }
 }

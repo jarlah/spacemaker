@@ -2,6 +2,12 @@ import { Kysely, sql } from "kysely";
 import Database from "./databaseType";
 import { RootSchema } from "./jsonSchemaTypes";
 
+export const updatePolygonProjectFromSchema = async (
+  db: Kysely<Database>,
+  id: string,
+  data: RootSchema
+): Promise<void> => {};
+
 /**
  * Creates a project with building limits and height plateaus
  *
