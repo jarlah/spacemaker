@@ -38,7 +38,7 @@ jobs:
         cache: 'npm'
     - name: Run core tests
       run: |
-        run: npm ci
+        npm ci
         npm run test
       working-directory: packages/core
 
