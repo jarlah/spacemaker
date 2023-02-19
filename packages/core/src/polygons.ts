@@ -1,6 +1,6 @@
 import { Kysely, sql } from "kysely";
-import Database from "./database-type";
-import { RootSchema } from "./schema-types";
+import Database from "./databaseType";
+import { RootSchema } from "./jsonSchemaTypes";
 
 /**
  * Creates a project with building limits and height plateaus

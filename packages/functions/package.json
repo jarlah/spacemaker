@@ -13,5 +13,10 @@
   },
   "dependencies": {
     "sst": "^2.0.25"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^@spacemaker/core/(.*)$": "<rootDir>/../core/src/$1"
+    }
   }
 }

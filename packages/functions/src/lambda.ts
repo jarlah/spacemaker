@@ -3,9 +3,9 @@ import { Kysely } from "kysely";
 import { DataApiDialect } from "kysely-data-api";
 import { RDS } from "@serverless-stack/node/rds";
 import { APIGatewayEvent } from "aws-lambda";
-import { validateRequestBody } from "@spacemaker/core/json-schema";
-import Database from "@spacemaker/core/database-type";
-import { createPolygonProjectFromSchema, validatePolygons} from '@spacemaker/core/polygons';
+import { validateRequestBody } from "@spacemaker/core/jsonSchema";
+import Database from "@spacemaker/core/databaseType";
+import { createPolygonProjectFromSchema, validatePolygons} from '@spacemaker/core/src/polygons';
 
 const db = new Kysely<Database>({
   dialect: new DataApiDialect({
@@ -43,7 +43,7 @@ export async function createHandler(event: APIGatewayEvent) {
       statusCode: 400,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(result.data),
-    }
+    };
   }
 
   const valid = validatePolygons(result.data);

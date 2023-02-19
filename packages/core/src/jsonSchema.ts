@@ -1,4 +1,4 @@
-import { RootSchema } from "./schema-types";
+import { RootSchema } from "./jsonSchemaTypes";
 import Ajv, { ErrorObject } from "ajv";
 
 const ajv = new Ajv();
