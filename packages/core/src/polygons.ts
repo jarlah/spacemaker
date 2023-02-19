@@ -67,7 +67,7 @@ export const createPolygonProjectFromSchema = (
 // Can use sql for this
 // 1. Merge height plateaus
 // 2. Check if the merged height_plateaus geometry completely covers the building limits geometry
-export function validatePolygons(data: RootSchema): boolean {
-  // TODO implement
+export function validatePolygons(db: Kysely<Database>, data: RootSchema): boolean {
+  // TODO implement logic to validate polygons with postgis functions?
   return true;
 }

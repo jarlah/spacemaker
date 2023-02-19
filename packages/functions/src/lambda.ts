@@ -52,7 +52,7 @@ export async function updateHandler(event: APIGatewayEvent) {
     return badRequest(result.data);
   }
 
-  const valid = validatePolygons(result.data);
+  const valid = validatePolygons(db, result.data);
   if (!valid) {
     return badRequest(
       "Invalid building limits and/or overlapping height plateaus"
@@ -77,7 +77,7 @@ export async function createHandler(event: APIGatewayEvent) {
     return badRequest(result.data);
   }
 
-  const valid = validatePolygons(result.data);
+  const valid = validatePolygons(db, result.data);
   if (!valid) {
     return badRequest(
       "Invalid building limits and/or overlapping height plateaus"
