@@ -6,7 +6,13 @@ export const updatePolygonProjectFromSchema = async (
   db: Kysely<Database>,
   id: string,
   data: RootSchema
-): Promise<void> => {};
+): Promise<void> => {
+  // TODO
+  // 1. Fetch project
+  // 2. If project doesnt exist raise an Error("Project does not exist") which will resolve to 500 with that message
+  // 3. If project exists, delete all polygons, and replace with polygons in incoming data object
+  // 4. Use serializable transaction isolation level for the delete/insert operation above
+};
 
 /**
  * Creates a project with building limits and height plateaus
