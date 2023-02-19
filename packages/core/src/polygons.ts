@@ -1,5 +1,5 @@
 import { Kysely, sql } from "kysely";
-import { Database } from "./database";
+import Database from "./database-type";
 import { RootSchema } from "./schema-types";
 
 /**

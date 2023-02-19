@@ -5,8 +5,7 @@ export function ExampleStack({ stack }: StackContext) {
   const cluster = new RDS(stack, "Cluster", {
     engine: "postgresql11.13",
     defaultDatabaseName: "Spacemaker",
-    // TODO enable this when migrations is fixed, I removed the services folder to not keep unused code.
-    // migrations: "services/migrations",
+    migrations: "services/migrations",
   });
 
   // Create a HTTP API

@@ -1,37 +1,17 @@
 import { Kysely, sql } from "kysely";
 
-export interface Database {
-  polygons: {
-    id?: number;
-    type: string;
-    polygon: any;
-    elevation?: number;
-    project_id: number;
-  };
-  projects: {
-    id?: number;
-    name: string;
-  };
-}
-
 /**
- * Creates the necessary extensions and tables
- *
- * Due to problems with migration not working, we are doing the "migration" here
- *
- * TODO in a real production environment, we will need a proper migration
- *
- * @param trx the db
+ * @param db {Kysely<any>}
  */
-export async function initializeDatabase(trx: Kysely<Database>): Promise<void> {
-  await sql`CREATE EXTENSION IF NOT EXISTS postgis;`.execute(trx);
-  await trx.schema
+export async function up(db) {
+  await sql`CREATE EXTENSION IF NOT EXISTS postgis;`.execute(db);
+  await db.schema
     .createTable("projects")
     .addColumn("id", "bigserial", (col) => col.primaryKey())
     .addColumn("name", "varchar", (col) => col.notNull())
     .ifNotExists()
     .execute();
-  await trx.schema
+  await db.schema
     .createTable("polygons")
     .addColumn("id", "bigserial", (col) => col.primaryKey())
     .addColumn("type", "varchar", (col) => col.notNull())
@@ -46,4 +26,12 @@ export async function initializeDatabase(trx: Kysely<Database>): Promise<void> {
     )
     .ifNotExists()
     .execute();
+}
+
+/**
+ * @param db {Kysely<any>}
+ */
+export async function down(db) {
+  await db.schema.dropTable("polygons").execute();
+  await db.schema.dropTable("projects").execute();
 }
