@@ -27,6 +27,23 @@ test("can properly insert root schema", async () => {
     }),
   });
 
+  await runMigration(db);
+
+  const result = await createPolygonProjectFromSchema(db, polygonsTestData);
+
+  const newProjectId = Number.parseInt(result.toString());
+
+  expect(newProjectId).toBeGreaterThan(0);
+
+  const polygons = await db
+    .selectFrom("polygons")
+    .where("project_id", "=", newProjectId)
+    .execute();
+
+  expect(polygons.length).toEqual(4);
+});
+
+async function runMigration(db: Kysely<Database>) {
   const migrator = new Migrator({
     db,
     provider: new FileMigrationProvider({
@@ -49,17 +66,4 @@ test("can properly insert root schema", async () => {
   if (error) {
     fail(JSON.stringify(error));
   }
-
-  const result = await createPolygonProjectFromSchema(db, polygonsTestData);
-
-  const newProjectId = Number.parseInt(result.toString());
-
-  expect(newProjectId).toBeGreaterThan(0);
-
-  const polygons = await db
-    .selectFrom("polygons")
-    .where("project_id", "=", newProjectId)
-    .execute();
-
-  expect(polygons.length).toEqual(4);
-});
+}
