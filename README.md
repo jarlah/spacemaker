@@ -8,8 +8,9 @@ limits and height plateaus, splits up the building limits according to the heigh
 stores these three entities (building limits, height plateaus and split building limits) in a
 persistent way.
 ##### Solution:
-Programmatic API with a clean interface = rest api.
-Stores these three entities in a persistent way = postgis with two tables, projects and polygons.
+"Programmatic API with a clean interface" = rest api.
+
+"Stores these three entities in a persistent way" = postgis with two tables, projects and polygons.
 
 ### Requirements
 
@@ -55,14 +56,10 @@ Deployed easily to AWS, see instructions below. AWS credentials must be availabl
 
 ## Getting Started
 
-[**Read the tutorial**](https://sst.dev/examples/how-to-use-postgresql-in-your-serverless-app.html)
-
-Install the example.
+Clone the app.
 
 ```bash
-$ npx create-sst@latest --template=examples/rest-api-postgresql
-# Or with Yarn
-$ yarn create sst --template=examples/rest-api-postgresql
+$ git clone https://github.com/jarlah/spacemaker.git
 ```
 
 ## Commands
