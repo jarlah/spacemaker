@@ -76,11 +76,11 @@ Starts the Live Lambda Development environment.
 
 Build your app and synthesize your stacks.
 
-### `npm run deploy [stack]`
+### `npm run deploy ExampleStack`
 
 Deploy all your stacks to AWS. Or optionally deploy, a specific stack.
 
-### `npm run remove [stack]`
+### `npm run remove ExampleStack`
 
 Remove all your stacks and all of their resources from AWS. Or optionally removes, a specific stack.
 
