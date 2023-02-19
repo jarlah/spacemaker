@@ -8,8 +8,8 @@ limits and height plateaus, splits up the building limits according to the heigh
 stores these three entities (building limits, height plateaus and split building limits) in a
 persistent way.
 ##### Solution:
-programmatic API with a clean interface  = rest api
-stores these three entities in a persistent way = postgis with two tables, projects and polygons
+Programmatic API with a clean interface = rest api.
+Stores these three entities in a persistent way = postgis with two tables, projects and polygons.
 
 ### Requirements
 
