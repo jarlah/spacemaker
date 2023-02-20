@@ -9,26 +9,30 @@ import * as path from "path";
 import { Pool } from "pg";
 import { promises as fs } from "fs";
 import Database from "./databaseType";
-import { createPolygonProjectFromSchema } from "./polygons";
+import {
+  createPolygonProjectFromSchema,
+  updatePolygonProjectFromSchema,
+  validatePolygons,
+} from "./polygons";
 // @ts-ignore
 import polygonsTestData from "./polygons.test.data.json";
 import { fail } from "assert";
 
-test("can properly insert root schema", async () => {
-  const db = new Kysely<Database>({
-    dialect: new PostgresDialect({
-      pool: new Pool({
-        host: "localhost",
-        database: "postgres",
-        user: "postgres",
-        password: "postgres",
-        port: 2345, // to avoid colliding with normal postgres
-      }),
+const db = new Kysely<Database>({
+  dialect: new PostgresDialect({
+    pool: new Pool({
+      host: "localhost",
+      database: "postgres",
+      user: "postgres",
+      password: "postgres",
+      port: 2345, // to avoid colliding with normal postgres
     }),
-  });
+  }),
+});
 
-  await runMigration(db);
+await runMigration(db);
 
+test("createPolygonProjectFromSchema", async () => {
   const result = await createPolygonProjectFromSchema(db, polygonsTestData);
 
   const newProjectId = Number.parseInt(result.toString());
@@ -41,6 +45,17 @@ test("can properly insert root schema", async () => {
     .execute();
 
   expect(polygons.length).toEqual(4);
+});
+
+test("validatePolygons", () => {
+  expect(validatePolygons(db, polygonsTestData)).toEqual(true);
+});
+
+test("updatePolygonProjectFromSchema", async () => {
+  const result = await createPolygonProjectFromSchema(db, polygonsTestData);
+  expect(
+    updatePolygonProjectFromSchema(db, result.toString(), polygonsTestData)
+  ).not.toThrowError;
 });
 
 async function runMigration(db: Kysely<Database>) {
