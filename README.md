@@ -16,7 +16,7 @@ persistent way.
 
 "Stores these three entities in a persistent way" = postgis with two tables, projects and polygons.
 
-I have thought about storing the data differently, in postgis, but i havent found a better way yet. I could have stored mulitpolygons, of building limits and height plateaus in a single table. But want I really wanted was to additionally merge the height plateaus at some point so that it would generate the exact same polygon as the building limit (in case where its fully covering the building limit) and thus being able to check if the two shapes are equal with ST_Equals. However i have not been able to get this working yet.
+I have thought about storing the data differently, in postgis, but i havent found a better way yet. I could have stored mulitpolygons, of building limits and height plateaus in a single table. But want I really wanted was to additionally merge the height plateaus at some point so that it would generate the exact same polygon as the building limit (in case where its fully covering the building limit), and maybe building limits is always a single polygon (?), and thus being able to check if the two shapes are equal with ST_Equals. However i have not been able to get this working yet.
 
 ### Requirements
 
